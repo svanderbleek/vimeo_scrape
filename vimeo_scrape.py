@@ -9,10 +9,9 @@ class UserVideos:
 
   def __init__(self, name):
     self.name = name
-    self.pages = self.__find_pages()
 
   def download(self):
-    map(self.__download_page, self.pages)
+    map(self.__download_page, self.__pages())
 
   def __download_page(self, page_url):
     video_links = VideoLinks(page_url, ".browse_videos a")
@@ -21,7 +20,7 @@ class UserVideos:
       video = UserVideo(*url_and_title)
       video.download()
 
-  def __find_pages(self):
+  def __pages(self):
     videos_url = self.VIDEOS_URL % {"name": self.name}
     page_urls = PageLinks(videos_url, "#pagination a").urls()
     return set(page_urls)
@@ -39,7 +38,7 @@ class UserVideo:
     video_content = requests.get(self.__download_url()).content
     video_file.write(video_content)
 
-  # Vimeo did not want to play nice :)
+  # Vimeo did not want to play nice
   def __download_url(self):
     soup = Soup.make(self.url)
     data_url = soup.select(".player")[0]['data-config-url']
